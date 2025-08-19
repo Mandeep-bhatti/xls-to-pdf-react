@@ -13,7 +13,7 @@ import { autoTable } from 'jspdf-autotable'
 
 function PdfView({ open, setOpen, data, sheetName }: { sheetName: string, data: any[], open: boolean, setOpen: (v: boolean) => void }) {
     const theme = useTheme();
-    const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+    const fullScreen = useMediaQuery(theme.breakpoints.down('xl'));
     const [currentPdfUri, setcurrentPdfUri] = React.useState<string | null>(null);
 
     const generatePDF = () => {
