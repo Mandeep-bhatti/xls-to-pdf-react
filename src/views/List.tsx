@@ -10,11 +10,15 @@ import { useState } from 'react';
 import PdvView from './pdvView';
 import jsPDF from 'jspdf';
 import { autoTable } from 'jspdf-autotable'
-import RenderIf from '@/app/components/RenderIf';
+import RenderIf from '@/components/RenderIf';
+import { Button } from '@mui/material';
+
 function getFilename(filename: string): string {
     return filename.replace(/\.[^/.]+$/, "");
 }
-export default function SheetList({ data, onSelectSheet, file }: { file?: File, data: Record<string, any[]>, onSelectSheet?: (s: string[]) => void }) {
+
+type SheetListProps = { reset?: () => void, file?: File, data: Record<string, any[]>, onSelectSheet?: (s: string[]) => void }
+export default function SheetList({ data, onSelectSheet, file, reset }: SheetListProps) {
     const [selected, setSelected] = useState<string[]>([]);
     const [currentSheet, setCurrentSheet] = useState("");
     const [open, setOpen] = useState(false);
@@ -34,7 +38,13 @@ export default function SheetList({ data, onSelectSheet, file }: { file?: File, 
 
         setSelected(currentList);
 
-        onSelectSheet && onSelectSheet(currentList)
+        onSelectSheet && onSelectSheet(currentList);
+
+        if (currentList.length === sheets.length) {
+            setAllSelected(true)
+        } else {
+            setAllSelected(false)
+        }
 
     }
 
@@ -50,7 +60,12 @@ export default function SheetList({ data, onSelectSheet, file }: { file?: File, 
         selected.forEach((sheet, indx) => {
             if (indx > 0) doc.addPage();
 
-            doc.setFontSize(16);
+            if (Object.keys(data[sheet][0]).length >= 10) {
+                doc.setFontSize(12);
+            } else {
+                doc.setFontSize(16);
+            }
+
             doc.text(`Sheet: ${sheet}`, 14, 15);
 
             const headers = [Object.keys(data[sheet][0])];
@@ -80,7 +95,7 @@ export default function SheetList({ data, onSelectSheet, file }: { file?: File, 
             <PdvView open={open} setOpen={setOpen} data={data[currentSheet]} sheetName={currentSheet} />
             <div className="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
                 <h2 className="text-lg font-semibold text-gray-800">
-                    Sheets:
+                    <span className='pr-2'>Sheets: </span>
                     <Checkbox
                         value={isAllSelected}
                         checked={isAllSelected}
@@ -90,13 +105,29 @@ export default function SheetList({ data, onSelectSheet, file }: { file?: File, 
                         disableRipple
                     />
                 </h2>
-                <RenderIf condition={selected.length > 0}>
-                    <button
-                        onClick={() => generatePDF()}
-                        className="rounded-lg bg-blue-600 px-4 py-2 text-white shadow hover:bg-blue-700">
-                        Download
-                    </button>
-                </RenderIf>
+                <div>
+                    <RenderIf condition={!!reset}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => reset && reset()}
+                            sx={{ mx: 1 }}
+                        >
+                            New
+                        </Button>
+                    </RenderIf>
+
+                    <RenderIf condition={selected.length > 0}>
+                        <Button
+                            variant="contained"
+                            color="secondary"
+                            onClick={() => generatePDF()}
+                        >
+                            Download
+                        </Button>
+                    </RenderIf>
+                </div>
+
             </div>
             <List sx={{ width: '100%', maxWidth: 700, bgcolor: 'background.paper' }}>
                 {sheets.map((sheet) => {

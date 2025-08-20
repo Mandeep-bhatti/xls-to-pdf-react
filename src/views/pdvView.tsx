@@ -19,6 +19,7 @@ function PdfView({ open, setOpen, data, sheetName }: { sheetName: string, data: 
     const generatePDF = () => {
         debugger
         const doc = new jsPDF();
+        
         doc.setFontSize(16);
         doc.text(sheetName, 14, 15);
         const headers = [Object.keys(data[0])]

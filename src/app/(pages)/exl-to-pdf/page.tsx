@@ -3,7 +3,7 @@ import Uploader from '@/views/uploader'
 import * as xls from 'xlsx';
 import SheetList from '@/views/List'
 import { useState } from 'react';
-import RenderIf from '@/app/components/RenderIf';
+import RenderIf from '@/components/RenderIf';
 export default function ExlToPdf() {
     const [fileData, setFileData] = useState<Record<string, any> | null>();
     const [file, setFile] = useState<File | null | undefined>()
@@ -39,15 +39,12 @@ export default function ExlToPdf() {
 
     return <>
         <RenderIf condition={!file}>
-            <Uploader onFileSelect={onFileSelect} />
+            <div className='flex justify-center items-center h-screen'>
+                <Uploader onFileSelect={onFileSelect} />
+            </div>
         </RenderIf>
         <RenderIf condition={!!file}>
-            <button
-                onClick={() => reset()}
-                className="rounded-lg bg-blue-600 px-4 py-2 text-white shadow hover:bg-blue-700 mt-2">
-                New
-            </button>
-            < SheetList data={fileData ?? {}} file={file as File} />
+            < SheetList data={fileData ?? {}} file={file as File} reset={reset} />
         </RenderIf>
 
     </>
